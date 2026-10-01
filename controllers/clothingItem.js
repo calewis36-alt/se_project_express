@@ -73,9 +73,61 @@ const deleteClothingItem = (req, res) => {
     });
 };
 
+const likeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  clothingItem
+    .findByIdAndUpdate(
+      itemId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true }
+    )
+    .orFail()
+    .then((updatedItem) => res.status(200).send(updatedItem))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(404).send({ message: "Clothing item not found" });
+      }
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: "Invalid item ID" });
+      }
+      return res
+        .status(500)
+        .send({ message: "An error occurred on the server" });
+    });
+};
+
+const dislikeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  clothingItem
+    .findByIdAndUpdate(
+      itemId,
+      { $pull: { likes: req.user._id } },
+      { new: true }
+    )
+    .orFail()
+    .then((updatedItem) => res.status(200).send(updatedItem))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(404).send({ message: "Clothing item not found" });
+      }
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: "Invalid item ID" });
+      }
+      return res
+        .status(500)
+        .send({ message: "An error occurred on the server" });
+    });
+};
+
 module.exports = {
   createClothingItem,
   getClothingItems,
   updateClothingItem,
   deleteClothingItem,
+  likeItem,
+  dislikeItem,
 };
