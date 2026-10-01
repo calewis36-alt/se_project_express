@@ -13,7 +13,7 @@
   "license": "ISC",
   "author": "Christopher Lewis",
   "type": "commonjs",
-  "main": "(index.js) app.js",
+  "main": "app.js",
   "scripts": {
     "lint": "npx eslint .",
     "start": "node app.js",
