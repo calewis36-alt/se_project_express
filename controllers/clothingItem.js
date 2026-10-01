@@ -13,9 +13,9 @@ const getClothingItems = (req, res) => {
 };
 
 const createClothingItem = (req, res) => {
-  const { name, weather, imageUrl, owner } = req.body;
+  const { name, weather, imageUrl } = req.body;
   clothingItem
-    .create({ name, weather, imageUrl, owner })
+    .create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => res.status(201).send(item))
     .catch((err) => {
       console.error(err);
@@ -63,6 +63,9 @@ const deleteClothingItem = (req, res) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
         return res.status(404).send({ message: "Clothing item not found" });
+      }
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: "Invalid item ID" });
       }
       return res
         .status(500)
