@@ -4,6 +4,7 @@ const {
   NOT_FOUND,
   CREATED,
   INTERNAL_SERVER_ERROR,
+  FORBIDDEN,
 } = require("../utils/errors");
 
 const getClothingItems = (req, res) => {
@@ -53,6 +54,9 @@ const updateClothingItem = (req, res) => {
           .status(NOT_FOUND)
           .send({ message: "Clothing item not found" });
       }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+      }
       if (err.name === "ValidationError") {
         return res
           .status(BAD_REQUEST)
@@ -68,9 +72,20 @@ const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
 
   clothingItem
-    .findByIdAndDelete(itemId)
+    .findById(itemId)
     .orFail()
-    .then(() => res.send({ message: "Clothing item deleted" }))
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id) {
+        return res
+          .status(FORBIDDEN)
+          .send({ message: "You are not the owner of this item" });
+      }
+      return item
+        .remove()
+        .then(() =>
+          res.send({ message: "Clothing item deleted successfully" })
+        );
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {

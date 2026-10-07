@@ -16,6 +16,17 @@ Node.js, Express.js, MongoDB, Mongoose for schemas/models, ESLint with Airbnb co
 
 `npm run dev` — to launch the server with the hot reload feature
 
+## Authentication
+
+• POST /signup — creates a new user (requires name, avatar, email, password)
+• POST /signin — logs in a user and returns a JWT token
+• All other endpoints require an Authorization: Bearer <token> header
+
 ### Testing
 
 Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
+
+ ## Project Pitch Video
+ 
+ Check out [this video](https://drive.google.com/file/d/1-eC7w1oltSp6jC1xMYRUX6rz-XqwFN7h/view?usp=sharing), where I describe my 
+ project and some challenges I faced while building it.

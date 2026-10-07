@@ -1,0 +1,19 @@
+$kind: http-request
+name: http://localhost:3001/signin
+description: ""
+url: http://localhost:3001/signin
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"name\": \"Test User\",\r
+
+    \    \"avatar\": \"https://example.com/avatar.jpg\",\r
+
+    \    \"email\": \"test@test.com\",\r
+
+    \    \"password\": \"123456\"\r
+
+    }"
+order: 3974716300006395

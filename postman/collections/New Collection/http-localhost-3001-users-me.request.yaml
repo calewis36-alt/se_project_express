@@ -1,0 +1,6 @@
+$kind: http-request
+name: http://localhost:3001/users/me
+description: ""
+url: http://localhost:3001/users/me
+method: GET
+order: 3350658526099877
