@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const { JWT_SECRET } = require("../utils/config");
 const {
   BAD_REQUEST,
   NOT_FOUND,
@@ -9,38 +11,23 @@ const {
   CONFLICT,
 } = require("../utils/errors");
 
-// GET /users
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred on the server" });
-    });
-};
-
-const bcrypt = require("bcryptjs");
 const createUser = (req, res) => {
   // POST /users
   const { name, avatar, email, password } = req.body;
   bcrypt
     .genSalt(10)
-    .then((salt) => {
-      return bcrypt.hash(password, salt);
-    })
-    .then((hashedPassword) => {
-      return User.create({ name, avatar, email, password: hashedPassword });
-    })
-    .then((user) => {
+    .then((salt) => bcrypt.hash(password, salt))
+    .then((hashedPassword) =>
+      User.create({ name, avatar, email, password: hashedPassword })
+    )
+    .then((user) =>
       res.status(CREATED).send({
         _id: user._id,
         name: user.name,
         avatar: user.avatar,
         email: user.email,
-      });
-    })
+      })
+    )
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -80,7 +67,7 @@ const getCurrentUser = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
-      res.send(user);
+      return res.send(user);
     })
     .catch((err) => {
       console.error(err);
@@ -93,7 +80,12 @@ const getCurrentUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
-  User.findOne({ email })
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
+  return User.findOne({ email })
     .select("+password")
     .then((user) => {
       if (!user) {
@@ -107,10 +99,10 @@ const login = (req, res) => {
             .status(UNAUTHORIZED)
             .send({ message: "Invalid email or password" });
         }
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
           expiresIn: "7d",
         });
-        res.send({ token, message: "Login successful" });
+        return res.send({ token, message: "Login successful" });
       });
     })
     .catch((err) => {
@@ -134,7 +126,7 @@ const updateUser = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
-      res.send(user);
+      return res.send(user);
     })
     .catch((err) => {
       console.error(err);
@@ -151,7 +143,6 @@ const updateUser = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
   createUser,
   getUser,
   login,
